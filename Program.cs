@@ -28,8 +28,8 @@ internal class Program
             Matrix<double> weights = Matrix<double>.Build.Random(layerDimensions[i], layerDimensions[i - 1], new Normal(0, 0.01, random));
             Matrix<double> biases = Matrix<double>.Build.Random(layerDimensions[i], 1, 0);
 
-            parameters["W" + i] = weights;
-            parameters["b" + i] = biases;
+            parameters["weights" + i] = weights;
+            parameters["biases" + i] = biases;
         }
 
         return parameters;
