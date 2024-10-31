@@ -34,4 +34,46 @@ internal class Program
 
         return parameters;
     }
+
+    // Activation Function
+    private static (Matrix<double> output, Matrix<double> cache) ComputeSigmoid(Matrix<double> input)
+    {
+        var activatedOutput = Matrix<double>.Build.Dense(input.RowCount, input.ColumnCount);
+        var activationCache = Matrix<double>.Build.Dense(input.RowCount, input.ColumnCount);
+
+        for (int row = 0; row < input.RowCount; row++)
+        {
+            for (int col = 0; col < input.ColumnCount; col++)
+            {
+                activatedOutput[row, col] = 1 / (1 + Math.Exp(-input[row, col]));
+                activationCache[row, col] = input[row, col];
+            }
+        }
+
+        return (activatedOutput, activationCache);
+    }
+
+    private static (Matrix<double>, List<((Matrix<double> previousInput, Matrix<double>, Matrix<double>) linearChache, Matrix<double> activationCache)>) ForwardPropagation(Matrix<double> input, Dictionary<string, Matrix<double>> parameters)
+    {
+        Matrix<double> layerInput = input;
+
+        int numberOfLayers = parameters.Count / 2;
+        List<((Matrix<double> previousInput, Matrix<double>, Matrix<double>) linearChache, Matrix<double> activationCache)> caches = [];
+
+        for (int i = 1; i <= numberOfLayers; i++)
+        {
+            Matrix<double> previousInput = layerInput;
+            Matrix<double> z = parameters[$"weights{i}"] * previousInput + parameters[$"biases{i}"];
+
+            (Matrix<double> previousInput, Matrix<double>, Matrix<double>) linearCache = (previousInput, parameters[$"weights{i}"], parameters[$"biases{i}"]);
+
+            (Matrix<double> output, Matrix<double> cache) result = ComputeSigmoid(z);
+
+            layerInput = result.output;
+
+            caches.Add((linearCache, result.cache));
+        }
+
+        return (layerInput, caches);
+    }
 }
